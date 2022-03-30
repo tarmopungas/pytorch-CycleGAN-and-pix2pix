@@ -22,7 +22,7 @@ def tensor2im(input_image, imtype=np.uint8):
         image_numpy = (np.transpose(image_numpy, (1, 2, 0)))  # post-processing: tranpose and scaling
     else:  # if it is a numpy array, do nothing
         image_numpy = input_image
-    return image_numpy.astype(imtype)
+    return image_numpy
 
 
 def diagnose_network(net, name='network'):
@@ -51,9 +51,8 @@ def save_image(image_numpy, image_path, aspect_ratio=1.0):
         image_numpy (numpy array) -- input numpy array
         image_path (str)          -- the path of the image
     """
-
     image_numpy = np.squeeze(image_numpy) #Remove empty dimension
-    image_pil = Image.fromarray(image_numpy)
+    image_pil = Image.fromarray(image_numpy, mode='F')
     h, w = image_numpy.shape
     image_path = image_path.replace(".png", ".tiff") # Replace .png ending with .tiff ending
 

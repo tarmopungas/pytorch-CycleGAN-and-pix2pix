@@ -7,24 +7,30 @@ from PIL import Image
 import numpy as np
 from os import listdir
 
-def normalize(arr):
-    ''' Function to scale an input array to [-1, 1] '''
+def normalize(arr, amin, amax):
+    """ Function to scale an input array to [-1, 1] """
     # Check the original min and max values
     # print('Min: %.3f, Max: %.3f' % (arr_min, arr_max))
-    arr_range = arr_max - arr_min
-    scaled = np.array((arr - arr_min) / float(arr_range), dtype='f')
+    new = np.where(arr > amax, amax, arr)  # replace values larger than max with max
+    new = np.where(new < amin, amin, new)  # replace values smaller than min with min
+    arr_range = amax - amin
+    scaled = np.array((new - amin) / float(arr_range), dtype='f')
     arr_new = -1 + (scaled * 2)
     # Make sure min value is -1 and max value is 1
     # print('Min: %.3f, Max: %.3f' % (arr_new.min(), arr_new.max()))
     return arr_new
 
-arr_min = 0  # absolute min
-arr_max = 65535  # absolute max
 
 classes = ["A", "B"]
 fold = ["train", "test", "val"]
 
 for c in classes:
+    if c == "A":
+        amin = 1550
+        amax = 3100
+    else:
+        amin = 150
+        amax = 1400
     for f in fold:
         # path to folder containing images
         path = './tarmo/{}/{}/'.format(c, f)
@@ -38,7 +44,7 @@ for c in classes:
             # convert to numpy array
             image = np.array(image)
             # scale to [-1,1]
-            norm_image = normalize(image)
+            norm_image = normalize(image, amin, amax)
             # save image
             im = Image.fromarray(norm_image)
             im.save(out + filename)
