@@ -44,6 +44,7 @@ class AlignedDataset(BaseDataset):
         w2 = int(w / 2)
         A = AB.crop((0, 0, w2, h))
         B = AB.crop((w2, 0, w, h))
+        #print("Extrema of A and B:", A.getextrema(), B.getextrema())
 
         # apply the same transform to both A and B
         transform_params = get_params(self.opt, A.size)
@@ -52,6 +53,8 @@ class AlignedDataset(BaseDataset):
 
         A = A_transform(A)
         B = B_transform(B)
+        #import torch
+        #print("Extrema of A and B:", torch.min(A), torch.max(A), torch.min(B), torch.max(B))
 
         return {'A': A, 'B': B, 'A_paths': AB_path, 'B_paths': AB_path}
 

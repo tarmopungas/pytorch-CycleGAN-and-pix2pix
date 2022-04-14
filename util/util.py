@@ -20,6 +20,7 @@ def tensor2im(input_image, imtype=np.uint8):
             return input_image
         image_numpy = image_tensor[0].cpu().float().numpy()  # convert it into a numpy array
         image_numpy = (np.transpose(image_numpy, (1, 2, 0)))  # post-processing: tranpose and scaling
+        #print("Min and max:", np.min(image_numpy), np.max(image_numpy))
     else:  # if it is a numpy array, do nothing
         image_numpy = input_image
     return image_numpy
@@ -53,6 +54,7 @@ def save_image(image_numpy, image_path, aspect_ratio=1.0):
     """
     image_numpy = np.squeeze(image_numpy) #Remove empty dimension
     image_pil = Image.fromarray(image_numpy, mode='F')
+    #print("Min and max:", image_pil.getextrema())
     h, w = image_numpy.shape
     image_path = image_path.replace(".png", ".tiff") # Replace .png ending with .tiff ending
 

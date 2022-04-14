@@ -41,6 +41,7 @@ for c in classes:
                 continue
             # load image
             image = Image.open(path + filename)
+            image = image.resize((256, 256)) # resize image first
             # convert to numpy array
             image = np.array(image)
             # scale to [-1,1]
