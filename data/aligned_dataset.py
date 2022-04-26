@@ -39,38 +39,47 @@ class AlignedDataset(BaseDataset):
         # read a image given a random integer index
         AB_path = self.AB_paths[index]
         AB = Image.open(AB_path).convert('RGB')
+
+        #### Tarmo added starts
         # possibly removing the RGB wouldn't mess things up(?)
-        #import numpy as np
+        import numpy as np
         #print("Min and max AFTER READING IN:", np.min(np.asarray(AB)), np.max(np.asarray(AB)))
+        #### Tarmo added ends
+
         # split AB image into A and B
         w, h = AB.size
         w2 = int(w / 2)
         A = AB.crop((0, 0, w2, h))
         B = AB.crop((w2, 0, w, h))
 
-        #print("Min and max of img BEFORE TRANSFORMATION:", np.min(np.asarray(B)), np.max(np.asarray(B)))
+        print("Min and max of img BEFORE TRANSFORMATION:", np.min(np.asarray(B)), np.max(np.asarray(B))) # Tarmo lisatud
+        print("Shape before transformation:", np.asarray(B).shape)
+
         # apply the same transform to both A and B
         transform_params = get_params(self.opt, A.size)
         A_transform = get_transform(self.opt, transform_params, grayscale=(self.input_nc == 1))
         B_transform = get_transform(self.opt, transform_params, grayscale=(self.output_nc == 1))
-        #print("Image mode:, A.mode)  # Tarmo lisatud
-        # suht kindel, et vaartused >255 loigatakse ara transforms.ToTensor poolt
+
+        #print("Image mode:, A.mode)  # Tarmo lisatudy
+
         A = A_transform(A)
         B = B_transform(B)
-        ### Tarmo lisatud algus
-        img1 = A.data
-        img1 = img1[0].cpu().float().numpy()
+
+        ### Tarmo added starts
+        img1 = A.cpu().detach().numpy().transpose(1, 2, 0)
         #print("Min and max of img AFTER TRANSFORMATION:", np.min(img1), np.max(img1))
-        img1 = img1
-        img2 = B.data
-        img2 = img2[0].cpu().float().numpy()
-        img2 = img2
-        image_pil1 = Image.fromarray(img1, mode="F")
-        image_pil2 = Image.fromarray(img2, mode="F")
+        
+        img2 = B.cpu().detach().numpy().transpose(1, 2, 0)
+        print("Min and max of img AFTER TRANSFORMATION:", np.min(img2), np.max(img2))
+        print("Shape after transformation:", img2.shape)
+        
+        image_pil1 = Image.fromarray(img1, mode="RGB")
+        image_pil2 = Image.fromarray(img2, mode="RGB")
         fname = AB_path.split("train/")[1]
         image_pil1.save("/gpfs/space/home/tarmop/pytorch-CycleGAN-and-pix2pix/tarmo/norm_out/A_" + fname)
         image_pil2.save("/gpfs/space/home/tarmop/pytorch-CycleGAN-and-pix2pix/tarmo/norm_out/B_" + fname)
-        #### Tarmo lisatud lõpp
+        #### Tarmo added ends
+        
         return {'A': A, 'B': B, 'A_paths': AB_path, 'B_paths': AB_path}
 
     def __len__(self):
